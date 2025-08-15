@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  hbbs:
+    container_name: hbbs
+    image: rustdesk/rustdesk-server:latest
+    command: hbbs -r ${RUSTDESK_SERVER_IP}:21117 -k _
+    volumes:
+      - ./data:/root
+    networks:
+      - rustdesk-net
+    ports:
+      - "21115:21115"
+      - "21116:21116/udp"
+    restart: unless-stopped
+    environment:
+      - RUSTDESK_SERVER_IP=${RUSTDESK_SERVER_IP:-your-server-ip}
+    depends_on:
+      - hbbr
+
+  hbbr:
+    container_name: hbbr
+    image: rustdesk/rustdesk-server:latest
+    command: hbbr -k _
+    volumes:
+      - ./data:/root
+    networks:
+      - rustdesk-net
+    ports:
+      - "21117:21117"
+      - "21118:21118"
+      - "21119:21119"
+    restart: unless-stopped
+
+networks:
+  rustdesk-net:
+    driver: bridge
+
+volumes:
+  data:
+    driver: local
